@@ -1,6 +1,7 @@
 package com.maple.atm;
 
 import android.content.Intent;
+import android.nfc.Tag;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -11,6 +12,7 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,8 +25,10 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_LOGIN = 100;
+   
     boolean logon = false;
     private List<Function> functions;
+    private String tag;
     //String[] functions = null;
 
     @Override
@@ -80,9 +84,15 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(@NonNull IconViewHolder iconViewHolder, int i) {
-            Function function = functions.get(i);
+            final Function function = functions.get(i);
             iconViewHolder.nameText.setText(function.getName());
             iconViewHolder.iconImage.setImageResource(function.getIcon());
+            iconViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    itemClicked(function);
+                }
+            });
         }
 
         @Override
@@ -99,6 +109,28 @@ public class MainActivity extends AppCompatActivity {
                 iconImage = itemView.findViewById(R.id.item_icon);
                 nameText = itemView.findViewById(R.id.item_name);
             }
+        }
+    }
+
+    private void itemClicked(Function function) {
+        Log.d(tag, "itemClicked: "+function.getName());
+        switch (function.getIcon()){
+            case R.drawable.func_balance:
+                break;
+            case R.drawable.func_finance:
+                Intent finance = new Intent(this,FinanceActivity.class);
+                startActivity(finance);
+                break;
+            case R.drawable.func_contacts:
+                Intent contacts = new Intent(this,ContactActivity.class);
+                startActivity(contacts);
+                break;
+            case R.drawable.func_transaction:
+                break;
+            case R.drawable.func_exit:
+                finish();
+                break;
+
         }
     }
 
@@ -132,4 +164,6 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+
 }

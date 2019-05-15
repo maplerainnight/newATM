@@ -1,6 +1,12 @@
 package com.maple.atm;
 
+import android.Manifest;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -19,6 +25,7 @@ import com.google.firebase.database.ValueEventListener;
 public class LoginActivity extends AppCompatActivity {
 
     private static final String TAG = LoginActivity.class.getSimpleName();
+    private static final int REQUEST_CODE_CAMERA = 5;
     private EditText edUserid;
     private EditText edPasswd;
     private CheckBox cbRememberID;
@@ -27,6 +34,12 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        int permission = ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA); //看我取得權限了嗎
+        if(permission == PackageManager.PERMISSION_GRANTED){
+            //takePhoto();
+        }else{ //沒有權限 迸出對話框要求權限
+            ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.CAMERA},REQUEST_CODE_CAMERA);
+        }
         //存東西到偏好裡
         getSharedPreferences("atm",MODE_PRIVATE)
                 .edit()
@@ -60,6 +73,22 @@ public class LoginActivity extends AppCompatActivity {
         edUserid.setText(userid);
 
     }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if(requestCode == REQUEST_CODE_CAMERA){
+            if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                takePhoto();
+            }
+        }
+    }
+
+    private void takePhoto() {
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE); //得到權限 拍照
+        startActivity(intent);
+    }
+
     public void login(View view){
         final String userid = edUserid.getText().toString();
         final String passwd = edPasswd.getText().toString();
